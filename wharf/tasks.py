@@ -1,8 +1,8 @@
+from pathlib import Path
 from .celery import app
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
 from django.conf import settings
-import select
 import time
 from redis import StrictRedis
 import subprocess
@@ -44,19 +44,24 @@ def get_public_key():
     return open("%s.pub" % keyfile).read()
 
 @app.task(bind=True)
-def run_ssh_command(self, command):
+def run_ssh_command(self, command: str | list[str]):
+    print("Running command", command)
     key = task_key(self.request.id)
     redis.set(key, "")
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy)
-    known_hosts = os.path.expanduser('~/.ssh/known_hosts')
-    try:
-        client.load_host_keys(known_hosts) # So that we also save back the new host
-    except FileNotFoundError:
-        if not os.path.exists(os.path.dirname(known_hosts)):
-            os.mkdir(os.path.dirname(known_hosts))
-        open(known_hosts, "w").write("") # so connect doesn't barf when trying to save
-    if type(command) == list:
+    known_hosts = Path('~/.ssh/known_hosts').expanduser()
+    known_hosts_folder = known_hosts.parent
+    if not known_hosts_folder.exists():
+        known_hosts_folder.mkdir()
+
+    if known_hosts.exists():
+        client.load_host_keys(known_hosts.as_posix()) # So that we also save back the new host
+    else:
+        with known_hosts.open("w") as f:
+            f.write("") # so connect doesn't barf when trying to save
+        
+    if isinstance(command, list):
         commands = command
     else:
         commands = [command]
@@ -67,6 +72,7 @@ def run_ssh_command(self, command):
             pkey = None
         client.connect(settings.DOKKU_HOST, port=settings.DOKKU_SSH_PORT, username="dokku", pkey=pkey, allow_agent=False, look_for_keys=False)
         transport = client.get_transport()
+        assert transport is not None
         channel = transport.open_session()
         channel.exec_command(c)
         while True:
