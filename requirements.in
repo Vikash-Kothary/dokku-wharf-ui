@@ -1,11 +1,10 @@
-django ~= 3.1.14
+django
 django-jinja-bootstrap-form
 dj-database-url
 requests
 jinja2
 psycopg2-binary
-celery
-celery[redis]
+celery[redis] >= 5
 django-redis
 django-celery-results
 paramiko
@@ -13,6 +12,10 @@ gitpython
 humanize
 timeout-decorator
 selenium
+packaging
 
-redis < 3 # Version 3 does various things we're not compatible with yet, so don't automatically upgrade
 django-jinja
+
+pytest
+pytest-django
+pytest-watcher
