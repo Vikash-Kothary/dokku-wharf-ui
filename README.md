@@ -10,11 +10,11 @@ Screenshots
 
 Setup
 -----
-1. [Install Dokku](http://dokku.viewdocs.io/dokku/getting-started/installation) (versions up to 0.19.13, see [#78](https://github.com/palfrey/wharf/issues/78))
+1. [Install Dokku](http://dokku.viewdocs.io/dokku/getting-started/installation)
 2. Install the following plugins:
-  * https://github.com/dokku/dokku-redis (versions up to 1.10.4, see [#75](https://github.com/palfrey/wharf/issues/75))
-  * https://github.com/dokku/dokku-postgres (versions up to 1.9.5, see [#75](https://github.com/palfrey/wharf/issues/75))
-  * https://github.com/dokku/dokku-letsencrypt (versions up to 0.9.4 see [#115](https://github.com/palfrey/wharf/issues/115))
+  * https://github.com/dokku/dokku-redis
+  * https://github.com/dokku/dokku-postgres
+  * https://github.com/dokku/dokku-letsencrypt
 3. Setup the Let's Encrypt plugin to auto-renew (`dokku letsencrypt:cron-job --add`)
 4. Create the app (`dokku apps:create wharf`)
 5. Add SSH key storage:
@@ -25,6 +25,7 @@ Setup
 7. Add Postgres (`dokku postgres:create wharf && dokku postgres:link wharf wharf`)
 8. Set `ADMIN_PASSWORD` to something secret (`dokku config:set wharf ADMIN_PASSWORD=somesecret`)
 9. Deploy this Git repo [as per the standard Dokku instructions](http://dokku.viewdocs.io/dokku/deployment/application-deployment/)
+10. `dokku ps:scale wharf celery=1`
 
 Helpful hints
 -------------
